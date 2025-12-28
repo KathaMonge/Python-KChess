@@ -1,137 +1,105 @@
 # Python Easy Chess GUI
-A Chess GUI based from Python using PySimpleGUI and Python-Chess modules. Users can also load a chess engine and play with it. This program is based on a [demo chess against ai](https://github.com/PySimpleGUI/PySimpleGUI/tree/master/Chess) from [PySimpleGUI](https://github.com/PySimpleGUI/PySimpleGUI).
 
-![](https://i.imgur.com/DT0lOO2.png)
+Una interfaz grafica para ajedrez (GUI) desarrollada en Python utilizando los modulos `FreeSimpleGUI` (anteriormente `PySimpleGUI`) y `python-chess`. Este programa permite a los usuarios jugar contra motores de ajedrez UCI, gestionar repertorios de partidas y analizar posiciones con herramientas avanzadas.
 
-Command line to compile the source to exe using pyinstaller.
+Este programa esta basado en un [demo de ajedrez contra IA](https://github.com/PySimpleGUI/PySimpleGUI/tree/master/Chess) de `PySimpleGUI`.
 
-```
-pyinstaller python_easy_chess_gui.py -F -w
-```
+Nota: Este fork del proyecto [Python Easy Chess GUI](https://github.com/fsmosca/Python-Easy-Chess-GUI) tiene como objetivo agregar la funcionalidad de mostrar los movimientos posibles en el tablero de la interfaz y tambien utlizar el codigo para que pueda ser integrado con un microcontrolador (esp32) para reflejar los movimientos en un tablero de ajedrez simulado de manera digital con luces leds.
 
-Then add the folders for the exe to work.
+---
 
-### A. Requirements
-If you want to run from the python source the following are required or see the installation section below.
-* Python 3.7 and up
-* Python-chess v0.28.0 and up
-* PySimpleGUI 4.4.1 and up
-* Pyperclip
-* Download this repo
+## A. Requisitos del Sistema
 
-Or you can just download the [executable file](https://github.com/fsmosca/Python-Easy-Chess-GUI/releases) along with other files such as book and images.
+Si deseas ejecutar el programa desde el codigo fuente de Python, se requiere lo siguiente:
 
-### B. Features
-#### 1. Save games to repertoire pgn files
-![](https://i.imgur.com/iXO2abq.png)
+* **Python 3.7** o superior.
+* **python-chess** v0.28.0 o superior (`pip install python-chess`).
+* **FreeSimpleGUI** (`pip install FreeSimpleGUI`).
+* **Pyperclip** (`pip install pyperclip`).
+* Los directorios `Images`, `Engines`, `Icon` y `Book` incluidos en este repositorio.
 
-#### 2. Install uci engine of your choice
-![](https://i.imgur.com/GErKZFy.png)
+---
 
-#### 2.1 It is recommended to configure the engine setting after installation
-Configure engine via Engine->Manage->Edit, select engine and press modify.
+## B. Caracteristicas Detalladas
 
-![](https://i.imgur.com/PmDzCvz.png)
+### 1. Gestion de Partidas y Repertoios PGN
+El programa guarda automaticamente todas las partidas jugadas en el archivo `pecg_auto_save_games.pgn`. Ademas, permite guardar partidas especificas en:
+* **Mis Juegos**: Repertoio personal general.
+* **Repertorio de Blancas/Negras**: Archivos dedicados para estudiar aperturas o lineas especificas.
 
-#### 3. Need book assistance? Right-click on BOOK 2 and press show
-![](https://i.imgur.com/SdgNdr6.png)
+### 2. Soporte para Motores UCI
+Puedes instalar cualquier motor compatible con el protocolo UCI (como Stockfish).
+* **Instalacion**: Ve a `Engine -> Manage -> Install` en modo Neutral.
+* **Configuracion**: Es posible editar parametros internos del motor (como Hash, Threads, etc.) mediante `Engine -> Manage -> Edit`.
 
-#### 4. Need what engine adviser will think about the position? Right-click on Adviser and press start
-![](https://i.imgur.com/Jziws5W.png)
+### 3. Asistencia de Libros de Aperturas (Polyglot)
+El programa admite el uso de libros de aperturas en formato `.bin`.
+* Puedes ver las jugadas sugeridas por el libro haciendo clic derecho en las etiquetas de `BOOK` y seleccionando `Show`.
+* Permite configurar libros distintos para el motor y para consulta del usuario.
 
-### C. Installation
-1. If you want to run from the source code
-* Python Easy Chess GUI<br>
-Download the files including the Images, Engines and Book directories. You can use your favorite uci chess engine like stockfish by copying it into the engines dir.
-* Python 3<br>
-https://www.python.org/downloads/
-* Python-Chess<br>
-https://github.com/niklasf/python-chess<br>
-pip install python-chess
-* PySimpleGUI<br>
-https://github.com/PySimpleGUI/PySimpleGUI<br>
-pip install pysimplegui
-* Pyperclip<br>
-https://github.com/asweigart/pyperclip<br>
-pip install pyperclip
-2. If you want to run from the exe
-* Download the exe file from the release link
+### 4. Analisis con Motor Consejero (Adviser)
+Ademas del motor oponente, puedes configurar un "Adviser" (Consejero). Al activarlo con clic derecho en `Adviser -> Start`, el motor analizara la posicion actual permanentemente y mostrara la evaluacion y la linea principal.
 
-#### Note
+---
 
-If you are on linux be sure to give permission to uci engine with:  
-`chmod +x uci_engine_fn`.
+## C. Guia de Instalacion Paso a Paso
 
-### D. How to
-#### To start the gui
-* Execute python_easy_chess_gui.py<br>
-Typical command line:<br>
-`python python_easy_chess_gui.py`
-* Execute the exe when using exe file
+1. **Desde el Codigo Fuente**:
+   * Descarga todos los archivos del repositorio, manteniendo la estructura de carpetas.
+   * Instala las dependencias:
+     ```bash
+     pip install python-chess FreeSimpleGUI pyperclip
+     ```
+     o
 
-#### To play as white
-* Mode->Play
-* Move the piece you want to move
-* Press the square you want the piece to move to
+     ```bash
+     pip install -r requirements.txt
+     ```
+   * Coloca tus motores UCI favoritos en la carpeta `Engines`.
 
-#### To play as black
-* If current mode is Neutral, Board->Flip, flip such that black pieces are at the bottom
-* If current mode is Play, Mode->Neutral, then Board->Flip
-* Mode->Play
-* Engine->Go
+2. **Uso en Linux**:
+   Asegurate de dar permisos de ejecucion a los motores UCI con el comando:
+   `chmod +x nombre_del_motor`.
 
-#### To paste a FEN
-* You should be in Play mode. If not, then Mode->Play
-* FEN->Paste
-* If you play as white, you can make your move
-* If you play as black, Engine->Go
+---
 
-#### To flip board
-* If current mode is Neutral, Board->Flip
-* If current mode is Play, Mode->Neutral, then Board->Flip
+## D. Como Utilizar el Programa
 
-#### To set opponent engine book options
-* Book->Set Book, only available in Neutral mode. This book is used by your opponent engine. This book is named pecg_book.bin and is located in Book folder. You can build a polyglot book name it pecg_book.bin and replace the default.
+### Modos de Operacion
+La GUI tiene dos modos principales:
+1. **Neutral**: Para configuracion de motores, colores, temas y opciones de tiempo.
+2. **Play**: Para jugar la partida activamente.
 
-#### To Hide/Unhide engine search info
-* Right-click on Opponent Search Info label an press Show. This would only work on Play mode.
+### Para Jugar como Blancas
+* Cambia a `Mode -> Play`.
+* Haz clic en la pieza y luego en la casilla de destino.
 
-#### To Hide/Unhide Book info
-* Right-click on BOOK 1 or BOOK 2 labels and press Show. This would only work on Play mode.
+### Para Jugar como Negras
+* En modo Neutral, ve a `Board -> Flip` para que las piezas negras esten abajo.
+* Cambia a `Mode -> Play`.
+* Ve a `Engine -> Go` para que el motor realice la primera jugada de las blancas.
 
-#### To request Adviser search info
-* Right-click on Adviser and press start. This would only work on Play mode.
+### Funciones de Analisis y FEN
+* **Pegar FEN**: Puedes cargar una posicion desde el portapapeles en `FEN -> Paste` (debe estar en modo `Play`).
+* **Ver Info de Busqueda**: Haz clic derecho sobre la etiqueta de informacion del oponente y selecciona `Show` para ver profundidad, puntaje y tiempo.
 
-#### To select opponent engine
-* Engine->Set Engine Opponent, available only in Neutral mode.
+### Configuracion de Tiempo
+* **Time -> Engine**: Define el tiempo disponible para el motor (soporta incrementos Fischer, Delay y Classical).
+* **Time -> User**: Define tu propio tiempo.
 
-#### To set time control of engine
-* Time->Engine
+---
 
-#### To set time control of user
-* Time->User
+## E. Personalizacion Visual
+En modo Neutral, puedes cambiar la apariencia del tablero:
+* **Board -> Color**: Elige entre varios colores de casillas (Marron, Azul, Verde, Gris).
+* **Board -> Theme**: Selecciona temas visuales predefinidos para la interfaz.
 
-#### To install engine
-* Engine->Manage->Install  
-This is only accessible in Neutral mode. After the uci engine is installed, you have to Edit it to modify its options, etc. Only uci engines are supported so far.
-* Engine->Manage->Edit
+---
 
-#### To Edit engine
-* Engine->Manage->Edit
-
-#### To delete engine from config file
-* Engine->Manage->Delete
-
-### E. Credits
-* PySimpleGUI<br>
-https://github.com/PySimpleGUI/PySimpleGUI
-* Python-Chess<br>
-https://github.com/niklasf/python-chess
-* Pyperclip<br>
-https://github.com/asweigart/pyperclip
-* The Week in Chess<br>
-https://theweekinchess.com/
-* PyInstaller<br>
-https://github.com/pyinstaller/pyinstaller
-* pgn-extract<br>
-https://www.cs.kent.ac.uk/people/staff/djb/pgn-extract/
+## F. Creditos y Librerias
+* **FreeSimpleGUI**: Biblioteca principal para la interfaz grafica.
+* **Python-Chess**: Motor logico para el manejo de reglas de ajedrez y protocolos UCI.
+* **Pyperclip**: Gestion del portapapeles para copiar/pegar FEN y PGN.
+* **PyInstaller**: Utilizado para la creacion del archivo ejecutable.
+* **pgn-extract**: Utilidad recomendada para el manejo avanzado de archivos PGN.
+* **Codigo fuente**: [Repositorio GitHub de Ferdinand Mosca](https://github.com/fsmosca/Python-Easy-Chess-GUI)
