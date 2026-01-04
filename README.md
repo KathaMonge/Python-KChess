@@ -10,9 +10,7 @@ Nota: Este fork del proyecto [Python Easy Chess GUI](https://github.com/fsmosca/
 
 ## Demo
 
-<video src="Images/pychess fork demo debian-arm.mp4" controls width="600">
-  Tu navegador no soporta video embebido.
-</video>
+[Ver demo](Images/pychess fork demo debian-arm.mp4)
 
 ---
 
