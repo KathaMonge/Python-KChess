@@ -10,7 +10,9 @@ Nota: Este fork del proyecto [Python Easy Chess GUI](https://github.com/fsmosca/
 
 ## Demo
 
-[Ver demo](https://youtu.be/ig4NHqxFubw)
+[Screencast from 2026-01-04 14-39-08.webm](https://github.com/user-attachments/assets/5518cf31-3745-43ae-a964-6b055f761683)
+
+[Ver demo en YouTube](https://youtu.be/ig4NHqxFubw)
 
 ---
 
