@@ -33,6 +33,12 @@ sudo apt install python3-tk
 > Por eso es necesario instalar explícitamente `python3-pip` y `python3-tk` usando el gestor de paquetes de tu distribución (por ejemplo `apt` en Debian/Ubuntu).
 > En otras distribuciones, los nombres de los paquetes pueden variar.
 
+**Sobre motores de ajedrez en Linux/ARM:**  
+> Este repositorio **no incluye** motores de ajedrez precompilados para Linux ni para arquitecturas ARM.  
+> Si deseas jugar con un motor como **Stockfish**, debes descargarlo e instalarlo por separado desde su sitio oficial:  
+> [Stockfish Chess Engine](https://stockfishchess.org/download/)  
+> Una vez instalado, asegúrate de configurar la ruta del motor en la aplicación.
+
 ---
 
 ## B. Caracteristicas Detalladas
