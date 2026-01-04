@@ -8,7 +8,7 @@ Nota: Este fork del proyecto [Python Easy Chess GUI](https://github.com/fsmosca/
 
 ---
 
-[Demo](https://github.com/user-attachments/assets/5518cf31-3745-43ae-a964-6b055f761683)
+[demo.webm](https://github.com/user-attachments/assets/730c4bc4-4b95-43db-bcf5-ba16c8a77846)
 
 [Ver demo en YouTube](https://youtu.be/ig4NHqxFubw)
 
