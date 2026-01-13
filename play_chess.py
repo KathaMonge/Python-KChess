@@ -8,7 +8,7 @@ import chess.engine
 import FreeSimpleGUI as sg
 
 # --- 1 CONFIGURACIONES Y COLORES ---
-APP_TITLE = 'Sun & Moon Chess - Proyecto Final'
+APP_TITLE = 'Ajedrez'
 IMG_PATH = 'Images/60'
 ENGINE_PATH = "engines/stockfish.exe" 
 
