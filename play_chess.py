@@ -42,8 +42,10 @@ PIECE_IMAGES = {
 
 # --- 2 ESTADO GLOBAL ---
 board = chess.Board()
-move_queue = queue.Queue()
-suggestion_queue = queue.Queue()
+# Colas para comunicación entre hilos (GUI <-> Motor)
+move_queue = queue.Queue()          # Cola para movimientos del bot
+suggestion_queue = queue.Queue()    # Cola para sugerencias del asistente
+
 selected_square = None
 valid_moves_squares = {}
 engine_suggestion = None
@@ -126,13 +128,31 @@ def update_ui(window):
         sg.popup(f"¡FIN DEL JUEGO!\n\n{res}", title="Resultado", font=('Helvetica', 12, 'bold'), keep_on_top=True)
 
 def engine_thread_func(current_board, q):
-    # hilo para calculos del motor stockfish
+    """
+    Ejecuta el motor de ajedrez en un hilo separado para evitar congelar la GUI via 'threading'.
+    
+    Argumentos:
+    current_board (chess.Board): Una COPIA del tablero actual. Se usa una copia porque 'board' no es thread-safe
+                                 y el hilo principal podria modificarlo mientras el motor piensa.
+    q (queue.Queue): La cola donde se pondra el resultado (el movimiento sugerido).
+    """
     try:
+        # Se lanza el proceso del motor usando protocolo UCI
         with chess.engine.SimpleEngine.popen_uci(ENGINE_PATH) as engine:
-            temp_board = chess.Board(current_board.fen()) if any(m == chess.Move.null() for m in current_board.move_stack) else current_board
+            # Lógica para manejar 'null moves' (pasar turno):
+            # Algunos motores fallan si el historial tiene movimientos nulos. 
+            # Si se detectan, creamos un tablero nuevo solo con la posición FEN actual (sin historial).
+            if any(m == chess.Move.null() for m in current_board.move_stack):
+                temp_board = chess.Board(current_board.fen())
+            else:
+                temp_board = current_board
+                
+            # Solicitamos al motor que juegue por 0.4 segundos
             result = engine.play(temp_board, chess.engine.Limit(time=0.4))
             q.put(result.move)
-    except: pass
+    except Exception as e:
+        print(f"[Engine Thread Error] {e}")
+
 
 # --- ENGINE DOWNLOADER (Functional) ---
 
@@ -201,15 +221,19 @@ def ensure_engine():
 
 # --- 4 MAIN ---
 
+# --- 4 MAIN ---
+
 def main():
     global selected_square, valid_moves_squares, is_bot_enabled, is_assistant_enabled, engine_suggestion, game_over_notified, ENGINE_PATH
     
-    # Asegurar motor antes de iniciar interfaz
+    # Asegurar motor antes de iniciar interfaz - Optimizar luego para lazy loading
+    # Esto puede tardar unos segundos si se descarga, por eso se hace antes de crear la ventana principal
     engine_found = ensure_engine()
     if engine_found:
         ENGINE_PATH = engine_found
     else:
-        print("No se pudo encontrar ni descargar el motor Stockfish.")
+        print("No se pudo descargar Stockfish")
+        return
 
     sg.theme('DarkGrey15')
 
@@ -262,7 +286,7 @@ def main():
                 update_ui(window)
                 continue
 
-        # si se hace clic en cualquier otra cosa se limpia la espera de confirmacion
+        # Clic en cualquier otra cosa se limpia la espera de confirmacion
         if event is not None and event != sg.TIMEOUT_EVENT:
             confirm_states.clear()
 
@@ -271,7 +295,9 @@ def main():
             reset_selection()
             update_ui(window)
             if is_bot_enabled and board.turn == chess.BLACK:
+                print("[Main] Turno saltado, iniciando Bot...")
                 threading.Thread(target=engine_thread_func, args=(board.copy(), move_queue), daemon=True).start()
+
             continue
 
         if event == '-SET-BOARD-':
@@ -282,9 +308,11 @@ def main():
                     reset_selection()
                     game_over_notified = False
                     update_ui(window)
-                    # dispara el bot si el turno cargado es el del bot
+                    # Activa el bot si el turno cargado es el del bot
                     if is_bot_enabled and board.turn == chess.BLACK and not board.is_game_over():
+                        print("[Main] FEN cargado, turno de negras -> Activando Bot")
                         threading.Thread(target=engine_thread_func, args=(board.copy(), move_queue), daemon=True).start()
+
                 except: sg.popup_error("FEN Invalido")
             continue
 
@@ -301,27 +329,42 @@ def main():
             sq = chess.square(event[1], event[0])
             
             if selected_square is None:
+                # PRIMER CLIC: Seleccionar pieza
                 piece = board.piece_at(sq)
                 if piece and piece.color == board.turn:
                     selected_square = sq
                     valid_moves_squares = {m.to_square: m for m in board.legal_moves if m.from_square == sq}
                 elif piece: sg.popup_quick_message("Turno incorrecto", background_color='red')
             else:
+                # SEGUNDO CLIC: Mover o Deseleccionar
+                
+                # Caso Deseleccion: Clic en la misma pieza
+                if sq == selected_square:
+                    # print("[UI] Deseleccionando pieza") # Depurar deseleccion
+                    reset_selection()
+                    update_ui(window)
+                    continue
+
+                # Caso Mover
                 move = next((m for m in board.legal_moves if m.from_square == selected_square and m.to_square == sq), None)
                 if move:
                     if board.piece_at(selected_square).piece_type == chess.PAWN and chess.square_rank(move.to_square) in (0, 7):
                         move.promotion = chess.QUEEN
                     board.push(move)
+                    print(f"[Main] Movimiento realizado: {move}")
                     reset_selection()
                     if not board.is_game_over():
+                        # Determinar si necesitamos activar el motor (si es turno del bot o si el asistente esta activo)
                         target_q = move_queue if is_bot_enabled else (suggestion_queue if is_assistant_enabled else None)
-                        if target_q: threading.Thread(target=engine_thread_func, args=(board.copy(), target_q), daemon=True).start()
+                        if target_q: 
+                            print("[Main] Solicitando analisis al motor...")
+                            threading.Thread(target=engine_thread_func, args=(board.copy(), target_q), daemon=True).start()
                 else:
+                    # Clic invalido (ni la misma pieza ni un movimiento valido): Feedback visual de error
                     window[event].update(button_color=('white', COLORS["ERROR"]))
                     window.refresh()
                     time.sleep(0.1)
-                    selected_square = None
-                    valid_moves_squares = {}
+                    reset_selection()
             update_ui(window)
 
         # procesar colas de motor
